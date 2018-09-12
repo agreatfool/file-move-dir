@@ -4,6 +4,7 @@ import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
 
 import * as program from 'commander';
+import * as readdirSorted from 'readdir-sorted';
 
 const pkg = require('../package.json');
 
@@ -14,11 +15,13 @@ program.version(pkg.version)
     .option('-s, --source_dir <dir>', 'source dir')
     .option('-o, --output_dir <dir>', 'output dir')
     .option('-n, --base_name <string>', 'output base name, default is empty means only rename output files by number')
+    .option('-l, --locale <string>', 'locale by which file list read from dir sorted, default is en, see https://www.npmjs.com/package/readdir-sorted')
     .parse(process.argv);
 
 const ARGS_SOURCE_DIR = (program as any).source_dir === undefined ? undefined : (program as any).source_dir;
 const ARGS_OUTPUT_DIR = (program as any).output_dir === undefined ? undefined : (program as any).output_dir;
 const ARGS_OUTPUT_NAME = !(program as any).output_name ? BASE_NAME : (program as any).output_name;
+const ARGS_LOCALE = (program as any).locale === undefined ? 'en' : (program as any).locale;
 
 class FileMoveDir {
 
@@ -48,6 +51,38 @@ class FileMoveDir {
     private async _process() {
         console.log('Move processing ...');
 
+        const dirFiles = await readdirSorted(ARGS_SOURCE_DIR, {
+            locale: ARGS_LOCALE,
+            numeric: true
+        });
+
+        let FILE_NUMBER = 1;
+
+        for (const file of dirFiles) {
+            const fullPath = LibPath.join(ARGS_SOURCE_DIR, file);
+
+            if (!(await LibFs.stat(fullPath)).isDirectory()) {
+                continue;
+            }
+
+            console.log(`Sub dir found: ${fullPath}`);
+
+            const subFiles = await readdirSorted(fullPath, {
+                locale: ARGS_LOCALE,
+                numeric: true
+            });
+            for (const subFile of subFiles) {
+                const subFullPath = LibPath.join(fullPath, subFile);
+
+                if ((await LibFs.stat(subFullPath)).isFile() && subFile !== '.DS_Store') {
+                    const destPath = LibPath.join(ARGS_OUTPUT_DIR, `${ARGS_OUTPUT_NAME}${FILE_NUMBER.toString().padStart(4, '0')}${LibPath.extname(subFullPath)}`);
+                    await LibFs.rename(subFullPath, destPath);
+                    console.log(`Moving, from ${subFullPath}, to ${destPath}`);
+
+                    FILE_NUMBER++;
+                }
+            }
+        }
     }
 
 }
