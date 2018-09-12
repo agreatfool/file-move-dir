@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "file-move-dir": "./build/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/agreatfool/file-move-dir.git"
