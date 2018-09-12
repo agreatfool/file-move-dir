@@ -1,0 +1,27 @@
+{
+  "name": "file-move-dir",
+  "version": "0.0.1",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agreatfool/file-move-dir.git"
+  },
+  "author": "Jonathan Dai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/agreatfool/file-move-dir/issues"
+  },
+  "homepage": "https://github.com/agreatfool/file-move-dir#readme",
+  "dependencies": {
+    "commander": "2.18.0",
+    "mz": "2.7.0",
+    "readdir-sorted": "2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "10.9.4"
+  }
+}
